@@ -3,14 +3,17 @@
 
 init(File)->
 	{ok,Fd}=file:open(File,write),
-	Fd.
+	{Fd,File}.
 
-terminate(Fd)->
-	file:close(Fd).
+terminate({Fd,File})->
+	file:close(Fd),
+	{_,_,Ms}=now(),
+	file:rename(File,File++integer_to_list(Ms)),
+	File.
 
-handle_event({Action,Id,Event},Fd)->
+handle_event({Action,Id,Event},{Fd,File})->
 	{MegaSec,Sec,MicroSec}=now(),
 	io:format(Fd,"~w,~w,~w,~w,~w,~p~n",[MegaSec,Sec,MicroSec,Action,Id,Event]),
-	Fd;
-handle_event(_,Fd)->
-	Fd.
+	{Fd,File};
+handle_event(_,{Fd,File})->
+	{Fd,File}.
