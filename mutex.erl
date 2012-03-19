@@ -20,13 +20,21 @@ signal()->
 	ok.
 
 init()->
+	process_flag(trap_exit,true),
 	free().
 
 free()->
 	receive
 		{wait,Pid}->
-			Pid!ok,
-			busy(Pid);
+			try link(Pid) of
+			    true->
+				Pid!ok,
+				busy(Pid)
+			catch
+			    error:Error->
+				io:format("Can not link to client waiting,~w~n",[Error]),
+				free()
+			end;
 		stop->
 			terminate()
 	end.
@@ -34,6 +42,10 @@ free()->
 busy(Pid)->
 	receive 
 		{signal,Pid}->
+			unlink(Pid),
+			free();
+		{'EXIT',Pid,Reason}->
+			io:format("Client crashed,~w",[{error,{Pid,Reason}}]),
 			free()
 	end.
 
