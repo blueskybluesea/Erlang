@@ -4,7 +4,6 @@
 start()->
 	process_flag(trap_exit,true),
 	Pid=spawn_link(add_two,loop,[]),
-	register(add_two,Pid),
 	{ok,Pid}.
 
 stop()->
@@ -27,7 +26,7 @@ flush()->
 	end.
 
 loop()->
-	exit(terminated),
+%	exit(terminated),
 	receive
 		{request,Pid,Msg}->
 			Pid!{result,Msg+2},
