@@ -88,7 +88,7 @@ stop(Name)->
 	Name!{stop,self()},
 	receive {reply,Reply}->Reply end.
 
-terminate([{Pid,_}|Rest])->
+terminate([{Pid,_,_}|Rest])->
 	exit(Pid,kill),
 	terminate(Rest);
 terminate([])-> ok.
